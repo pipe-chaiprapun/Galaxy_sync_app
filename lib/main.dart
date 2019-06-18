@@ -1,6 +1,9 @@
+import 'package:de_mobile/pages/catalog.dart';
+import 'package:de_mobile/pages/cost.dart';
 import 'package:de_mobile/pages/home.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+
+import 'helper/Database.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
@@ -17,7 +20,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  
+  var db = DBProvider.db.database;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +37,8 @@ class _MyAppState extends State<MyApp> {
       // home: AuthPage(),
       routes: {
         '/': (BuildContext context) => HomePage(),
+        '/catalog' : (BuildContext context) => CatalogPage(),
+        '/cost': (BuildContext context) => CostPage()
         // '/products': (BuildContext context) => ProductsPage(), //ProductsPage(_products),
         // '/admin': (BuildContext context) => ProductsAdminPage()
       }

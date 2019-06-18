@@ -1,3 +1,4 @@
+import 'package:de_mobile/helper/Database.dart';
 import 'package:de_mobile/widgets/menu.dart';
 import 'package:flutter/material.dart';
 
@@ -43,6 +44,12 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: Menu(),
+      floatingActionButton: Container(child: FloatingActionButton(
+        child: Icon(Icons.add, size: 48,),
+        onPressed: () async {
+          await DBProvider.db.addContract();
+        },
+      ), width: 100, height: 100,),
     );
   }
 }

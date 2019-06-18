@@ -13,47 +13,49 @@ class _MenuState extends State<Menu> {
     {
       "id": "catalog",
       "name": "แคตตาล๊อก",
-      "icon": Icons.image,
-      "color": Colors.grey[600],
-      "image": "assets/images/menu/catalog.png"
+      // "icon": Icons.image,
+      // "color": Colors.grey[600],
+      "image": "assets/images/menu/catalog.png",
       //"color": Colors.teal
+      "url": "/catalog"
     },
     {
       "id": "payment",
       "name": "ใบรายวัน",
-      "icon": Icons.playlist_add_check,
-      "color": Colors.grey[600],
+      // "icon": Icons.playlist_add_check,
+      // "color": Colors.grey[600],
       "image": "assets/images/menu/payment3.jpg"
     },
     {
       "id": "cost",
       "name": "ค่าใช้จ่ายต่างๆ",
-      "icon": Icons.payment,
-      "color": Colors.grey[600],
-      "image": "assets/images/menu/cost.jpg"
+      // "icon": Icons.payment,
+      // "color": Colors.grey[600],
+      "image": "assets/images/menu/cost.jpg",
       // "color": Colors.green[600]
+      "url": "/cost"
     },
     {
       "id": "camera",
       "name": "ถ่ายรูปเพิ่มเติม",
-      "icon": Icons.camera_alt,
-      "color": Colors.grey[600],
+      // "icon": Icons.camera_alt,
+      // "color": Colors.grey[600],
       "image": "assets/images/menu/camera2.png"
       // "color": Colors.purple
     },
     {
       "id": "sendPayment",
       "name": "ส่งใบรายวัน",
-      "icon": Icons.send,
-      "color": Colors.grey[600],
+      // "icon": Icons.send,
+      // "color": Colors.grey[600],
       "image": "assets/images/menu/upload.png"
       // "color": Colors.amber
     },
     {
       "id": "getPayment",
       "name": "รับใบรายวัน",
-      "icon": Icons.get_app,
-      "color": Colors.grey,
+      // "icon": Icons.get_app,
+      // "color": Colors.grey,
       "image": "assets/images/menu/download.jpg"
       // "color": Colors.blueGrey
     },
@@ -66,19 +68,20 @@ class _MenuState extends State<Menu> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.grey[200],
-        body: _list == null
-            ? Center(child: const CircularProgressIndicator())
-            : _buildGridMenu(_list));
+    return _list == null ? Center(child: CircularProgressIndicator()) : _buildGridMenu(_list);
+    // return Scaffold(
+    //     backgroundColor: Colors.grey[200],
+    //     body: _list == null
+    //         ? Center(child: const CircularProgressIndicator())
+    //         : _buildGridMenu(_list));
   }
 
   Widget _buildGridMenu(List<dynamic> list) {
     return GridView.count(
-      crossAxisCount: 3,
+      crossAxisCount: 2,
       padding: EdgeInsets.all(8.0),
-      crossAxisSpacing: 8.0,
-      mainAxisSpacing: 5.0,
+      crossAxisSpacing: 10.0,
+      mainAxisSpacing: 10.0,
       children: list
           .map((data) => Card(
                 shape: RoundedRectangleBorder(
@@ -87,24 +90,29 @@ class _MenuState extends State<Menu> {
                 child: Center(
                     child: Container(
                         padding: EdgeInsets.symmetric(vertical: 15),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            SizedBox(
-                                width: 150,
-                                height: 150,
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  radius: 40.0,
-                                  backgroundImage: AssetImage(data['image']),
-                                  foregroundColor: Colors.teal,
-                                )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            _buildTitle(data['name'])
-                          ],
+                        child: GestureDetector(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    radius: 40.0,
+                                    backgroundImage: AssetImage(data['image']),
+                                    foregroundColor: Colors.teal,
+                                  )),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              _buildTitle(data['name'])
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(context, data['url'] == null ? '/catalog' : data['url']);
+                          },
                         ))),
               ))
           .toList(),
