@@ -106,7 +106,7 @@ class _GridPhotoViewerState extends State<GridPhotoViewer>
       onScaleStart: _handleOnScaleStart,
       onScaleUpdate: _handleOnScaleUpdate,
       onScaleEnd: _handleOnScaleEnd,
-      child: ClipRect(
+      child: Container(child: ClipRect(
         child: Transform(
           transform: Matrix4.identity()
             ..translate(_offset.dx, _offset.dy)
@@ -114,11 +114,11 @@ class _GridPhotoViewerState extends State<GridPhotoViewer>
           child: Image.asset(
             widget.photo.assetName,
             // package: widget.photo.assetPackage,
-            fit: BoxFit.cover
+            fit: BoxFit.scaleDown
             //fit: BoxFit.cover,
           ),
         ),
-      ),
+      ),color: Colors.black,),
     );
   }
 }
@@ -237,6 +237,7 @@ class CatalogState extends State<CatalogPage> {
       appBar: AppBar(
         title: const Text('รายงานสินค้า', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))
       ),
+      backgroundColor: Colors.black,
       body: Column(
         children: <Widget>[
           Expanded(
@@ -245,7 +246,7 @@ class CatalogState extends State<CatalogPage> {
               bottom: false,
               child: GridView.count(
                 crossAxisCount: (orientation == Orientation.portrait) ? 1 : 1,
-                mainAxisSpacing: 4.0,
+                mainAxisSpacing: 10,
                 crossAxisSpacing: 4.0,
                 padding: const EdgeInsets.all(5.0),
                 childAspectRatio:

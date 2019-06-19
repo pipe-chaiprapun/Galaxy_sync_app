@@ -24,7 +24,8 @@ class _MenuState extends State<Menu> {
       "name": "ใบรายวัน",
       // "icon": Icons.playlist_add_check,
       // "color": Colors.grey[600],
-      "image": "assets/images/menu/payment3.jpg"
+      "image": "assets/images/menu/payment3.jpg",
+      'url': '/payment'
     },
     {
       "id": "cost",
@@ -77,11 +78,17 @@ class _MenuState extends State<Menu> {
   }
 
   Widget _buildGridMenu(List<dynamic> list) {
+    final double deviceWidth = MediaQuery.of(context).size.width;
+
+    final double logoSize = deviceWidth * 0.25;
+    final double paddingMenu = deviceWidth * 0.05;
+    
+
     return GridView.count(
       crossAxisCount: 2,
-      padding: EdgeInsets.all(8.0),
-      crossAxisSpacing: 10.0,
-      mainAxisSpacing: 10.0,
+      padding: EdgeInsets.all(paddingMenu),
+      crossAxisSpacing: 15.0,
+      mainAxisSpacing: 15.0,
       children: list
           .map((data) => Card(
                 shape: RoundedRectangleBorder(
@@ -96,8 +103,8 @@ class _MenuState extends State<Menu> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               SizedBox(
-                                  width: 200,
-                                  height: 200,
+                                  width: logoSize,
+                                  height: logoSize,
                                   child: CircleAvatar(
                                     backgroundColor: Colors.white,
                                     radius: 40.0,
@@ -120,13 +127,15 @@ class _MenuState extends State<Menu> {
   }
 
   Widget _buildTitle(String title) {
+    final double deviceWidth = MediaQuery.of(context).size.width;
+    final double titleSize = deviceWidth * 0.03;
     return Container(
         margin: EdgeInsets.only(top: 10, bottom: 1),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               Text(title,
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.bold)),
             ]));
   }
 }

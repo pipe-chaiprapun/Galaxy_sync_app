@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Domestic Mobile',style: TextStyle(fontSize: 36),),
+        title: Text('Domestic Mobile',style: TextStyle(fontSize: 36)),
         centerTitle: true,
         actions: <Widget>[
           PopupMenuButton<WhyFarther>(

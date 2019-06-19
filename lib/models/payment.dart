@@ -30,7 +30,7 @@ class Payments {
         pay_no: json["pay_no"],
         con_no: json['con_no'],
         cust_name: json["cust_name"],
-        exp_date: json['exp_date'],
+        exp_date: DateTime.parse(json['exp_date']),
         period: json['period'],
         period_left: json['period_left'],
         period_amt: json['period_amt'],

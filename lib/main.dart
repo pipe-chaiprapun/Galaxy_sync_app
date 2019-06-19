@@ -1,7 +1,10 @@
 import 'package:de_mobile/pages/catalog.dart';
 import 'package:de_mobile/pages/cost.dart';
 import 'package:de_mobile/pages/home.dart';
+import 'package:de_mobile/pages/payment.dart';
+import 'package:de_mobile/pages/payment2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'helper/Database.dart';
 
@@ -38,6 +41,8 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/': (BuildContext context) => HomePage(),
         '/catalog' : (BuildContext context) => CatalogPage(),
+        '/payment': (BuildContext context) => PaymentPage(),
+        '/payment2': (BuildContext context) => PaymentPage2(),
         '/cost': (BuildContext context) => CostPage()
         // '/products': (BuildContext context) => ProductsPage(), //ProductsPage(_products),
         // '/admin': (BuildContext context) => ProductsAdminPage()
