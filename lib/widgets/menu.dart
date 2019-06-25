@@ -57,8 +57,9 @@ class _MenuState extends State<Menu> {
       "name": "รับใบรายวัน",
       // "icon": Icons.get_app,
       // "color": Colors.grey,
-      "image": "assets/images/menu/download.jpg"
+      "image": "assets/images/menu/download.jpg",
       // "color": Colors.blueGrey
+      'url': '/getPayment'
     },
   ];
 

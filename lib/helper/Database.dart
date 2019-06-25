@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:de_mobile/models/payment.dart';
+import 'package:de_mobile/models/payment2.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 // import 'package:sqlite_demo/ClientModel.dart';
@@ -21,52 +22,192 @@ class DBProvider {
     return _database;
   }
 
+  // initDB() async {
+  //   Directory documentsDirectory = await getApplicationDocumentsDirectory();
+  //   String path = join(documentsDirectory.path, "GTDB.db");
+  //   return await openDatabase(path, version: 1, onOpen: (db) {},
+  //       onCreate: (Database db, int version) async {
+  //     await db.execute("CREATE TABLE Payments ("
+  //         "pay_no INTEGER PRIMARY KEY,"
+  //         "con_no TEXT,"
+  //         "cust_name TEXT,"
+  //         "exp_date TEXT,"
+  //         "period INTEGER,"
+  //         "period_left INTEGER,"
+  //         "period_amt INTEGER,"
+  //         "pay_amt INTEGER,"
+  //         "tel TEXT,"
+  //         "sms_status TEXT,"
+  //         "hasImage NUMERIC,"
+  //         "takePhoto NUMERIC"
+  //         ")");
+  //   });
+  // }
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "GTDB.db");
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute("CREATE TABLE Payments ("
-          "pay_no INTEGER PRIMARY KEY,"
-          "con_no TEXT,"
-          "cust_name TEXT,"
-          "exp_date TEXT,"
-          "period INTEGER,"
-          "period_left INTEGER,"
-          "period_amt INTEGER,"
+          "doc_no TEXT KEY,"
+          "pay_date TEXT,"
+          "brh_id TEXT,"
+          "path_no TEXT,"
+          "path_name TEXT,"
+          "area_no TEXT,"
+          "area_name TEXT,"
+          "lnc_no TEXT,"
+          "cust_no INTEGER,"
+          "first_name TEXT,"
+          "last_name TEXT,"
+          "tel_sms TEXT,"
+          "mpay_amt INTEGER,"
           "pay_amt INTEGER,"
-          "tel TEXT,"
-          "sms_status TEXT,"
+          "last_pay_date TEXT,"
+          "late_no_day INTEGER,"
+          "bal INTEGER,"
           "hasImage NUMERIC,"
           "takePhoto NUMERIC"
           ")");
     });
   }
 
-  addContract() async{
+  // addContract() async{
+  //   final db = await database;
+  //   var table = await db.rawQuery('SELECT MAX(pay_no)+1 as pay_no FROM Payments');
+  //   int id = table.first['pay_no'];
+  //   var raw = await db.rawInsert('INSERT INTO Payments('
+  //   'pay_no,'
+  //   'con_no,'
+  //   'cust_name,'
+  //   'exp_date,'
+  //   'period,'
+  //   'period_left,'
+  //   'period_amt,'
+  //   'pay_amt,'
+  //   'tel,'
+  //   'sms_status,'
+  //   'hasImage,'
+  //   'takePhoto'
+  //   ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?)', [id, '42545243', 'ณัฏฐพัชร ชัยประพันธ์', '2016-01-01 10:20:05.123', 100, 20, 430, 25000, '0897567880', 'SUCCESS', 0, 0]);
+  //   return raw;
+  // }
+  addContract() async {
     final db = await database;
-    var table = await db.rawQuery('SELECT MAX(pay_no)+1 as pay_no FROM Payments');
-    int id = table.first['pay_no'];
-    var raw = await db.rawInsert('INSERT INTO Payments('
-    'pay_no,' 
-    'con_no,' 
-    'cust_name,' 
-    'exp_date,' 
-    'period,'
-    'period_left,' 
-    'period_amt,' 
-    'pay_amt,'
-    'tel,'
-    'sms_status,'
-    'hasImage,'
-    'takePhoto'
-    ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?)', [id, '42545243', 'ณัฏฐพัชร ชัยประพันธ์', '2016-01-01 10:20:05.123', 100, 20, 430, 25000, '0897567880', 'SUCCESS', 0, 0]);
+    var raw = await db.rawInsert(
+        'INSERT INTO Payments('
+        'doc_no,'
+        'pay_date,'
+        'brh_id,'
+        'path_no,'
+        'path_name,'
+        'area_no,'
+        'area_name,'
+        'lnc_no,'
+        'cust_no,'
+        'first_name,'
+        'last_name,'
+        'tel_sms,'
+        'mpay_amt,'
+        'pay_amt,'
+        'last_pay_date,'
+        'late_no_day,'
+        'bal,'
+        'hasImage,'
+        'takePhoto'
+        ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        [
+          '42435',
+          '2016-01-01 10:20:05.123',
+          '02',
+          '24',
+          'ณัฏฐพัชร',
+          '5',
+          'มหาชัย',
+          '84748494',
+          23432,
+          'ณัฏฐพัชร',
+          'ชัยประพันธ์',
+          '0897567880',
+          450,
+          0,
+          '2016-01-01 10:20:05.123',
+          0,
+          25000,
+          0,
+          0
+        ]);
     return raw;
   }
-  Future<List<Payments>> getAllPayments() async {
+  clearPayments() async{
+    final db = await database;
+    db.rawDelete('delete from Payments');
+  }
+  Future<int> addPayments(List<Payment2> data) async {
+    final db = await database;
+    int res;
+    data.forEach((p) async {
+      res = await db.rawInsert(
+        'INSERT INTO Payments('
+        'doc_no,'
+        'pay_date,'
+        'brh_id,'
+        'path_no,'
+        'path_name,'
+        'area_no,'
+        'area_name,'
+        'lnc_no,'
+        'cust_no,'
+        'first_name,'
+        'last_name,'
+        'tel_sms,'
+        'mpay_amt,'
+        'pay_amt,'
+        'last_pay_date,'
+        'late_no_day,'
+        'bal,'
+        'hasImage,'
+        'takePhoto'
+        ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        [
+          p.doc_no,
+          '2016-01-01 10:20:05.123',
+          p.brh_id,
+          p.path_no,
+          p.path_name,
+          p.area_no,
+          p.area_name,
+          p.lnc_no,
+          p.cust_no,
+          p.first_name,
+          p.last_name,
+          p.tel_sms,
+          p.mpay_amt,
+          p.pay_amt,
+          '2016-01-01 10:20:05.123',
+          p.late_no_day,
+          p.bal,
+          0,
+          0
+        ]);
+    });
+    return res;
+  }
+
+  // Future<List<Payments>> getAllPayments() async {
+  //   final db = await database;
+  //   var res = await db.query('Payments');
+  //   List<Payments> data = res.isNotEmpty
+  //       ? res.map((payment) => Payments.fromMap(payment)).toList()
+  //       : [];
+  //   return data;
+  // }
+  Future<List<Payment2>> getAllPayments() async {
     final db = await database;
     var res = await db.query('Payments');
-    List<Payments> data = res.isNotEmpty ? res.map((payment) => Payments.fromMap(payment)).toList() : [];
+    List<Payment2> data = res.isNotEmpty
+        ? res.map((payment) => Payment2.fromMap(payment)).toList()
+        : [];
     return data;
   }
   // Future<List<Client>> getAllClients() async {

@@ -1,8 +1,8 @@
 import 'package:de_mobile/pages/catalog.dart';
 import 'package:de_mobile/pages/cost.dart';
+import 'package:de_mobile/pages/getPayment.dart';
 import 'package:de_mobile/pages/home.dart';
 import 'package:de_mobile/pages/payment.dart';
-import 'package:de_mobile/pages/payment2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -24,9 +24,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var db = DBProvider.db.database;
-
   @override
   Widget build(BuildContext context) {
+    // DBProvider.db.initDB();
     // _products.add(Product(title: 'ทองคำแท่ง', description: 'ทองคำแท่ง', price: 15000, image: 'assets/images/gold2.jpg'));
     // _products.add(Product(title: 'ทองคำรูปพรรณ', description: 'ทองคำรูปพรรณ', price: 20000, image: 'assets/images/gold2.jpg'));
     return MaterialApp(
@@ -42,8 +42,9 @@ class _MyAppState extends State<MyApp> {
         '/': (BuildContext context) => HomePage(),
         '/catalog' : (BuildContext context) => CatalogPage(),
         '/payment': (BuildContext context) => PaymentPage(),
-        '/payment2': (BuildContext context) => PaymentPage2(),
-        '/cost': (BuildContext context) => CostPage()
+        // '/payment2': (BuildContext context) => PaymentPage2(),
+        '/cost': (BuildContext context) => CostPage(),
+        '/getPayment': (BuildContext context) => GetPaymentPage()
         // '/products': (BuildContext context) => ProductsPage(), //ProductsPage(_products),
         // '/admin': (BuildContext context) => ProductsAdminPage()
       }
