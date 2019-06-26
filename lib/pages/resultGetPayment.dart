@@ -104,30 +104,10 @@ class _resultGetPaymentState extends State<ResultGetPaymentPage> {
     }
   }
 
-  Future<List<Payment2>> getAllPayments() async {
-    // final db = await database;
-    // var res = await db.query('Payments');
-    // List<Payment2> data = res.isNotEmpty ? res.map((payment) => Payment2.fromJson(payment)).toList() : [];
-    // return data;
-
-    http
-        .get('http://192.168.0.61:5000/api/sync/test')
-        .then((http.Response response) {
-      print(response.statusCode);
-      //List<Payment2> payments = [];
-      List<dynamic> res = json.decode(response.body);
-      res.forEach((f) {
-        payments.add(Payment2.fromJson(f));
-      });
-      print(payments[0].doc_no);
-      return payments.isNotEmpty ? payments : [];
-    });
-  }
-
   Future fetchPayment() async {
     try {
       await http
-          .get('http://192.168.0.61:5000/api/sync/test')
+          .get('http://192.168.0.62:5000/api/sync/test')
           .then((http.Response response) {
         print(response.statusCode);
         //List<Payment2> payments = [];

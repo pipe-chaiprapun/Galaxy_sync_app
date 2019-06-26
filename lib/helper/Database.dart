@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:de_mobile/models/area.dart';
 import 'package:de_mobile/models/payment.dart';
 import 'package:de_mobile/models/payment2.dart';
 import 'package:path/path.dart';
@@ -72,73 +73,6 @@ class DBProvider {
     });
   }
 
-  // addContract() async{
-  //   final db = await database;
-  //   var table = await db.rawQuery('SELECT MAX(pay_no)+1 as pay_no FROM Payments');
-  //   int id = table.first['pay_no'];
-  //   var raw = await db.rawInsert('INSERT INTO Payments('
-  //   'pay_no,'
-  //   'con_no,'
-  //   'cust_name,'
-  //   'exp_date,'
-  //   'period,'
-  //   'period_left,'
-  //   'period_amt,'
-  //   'pay_amt,'
-  //   'tel,'
-  //   'sms_status,'
-  //   'hasImage,'
-  //   'takePhoto'
-  //   ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?)', [id, '42545243', 'ณัฏฐพัชร ชัยประพันธ์', '2016-01-01 10:20:05.123', 100, 20, 430, 25000, '0897567880', 'SUCCESS', 0, 0]);
-  //   return raw;
-  // }
-  addContract() async {
-    final db = await database;
-    var raw = await db.rawInsert(
-        'INSERT INTO Payments('
-        'doc_no,'
-        'pay_date,'
-        'brh_id,'
-        'path_no,'
-        'path_name,'
-        'area_no,'
-        'area_name,'
-        'lnc_no,'
-        'cust_no,'
-        'first_name,'
-        'last_name,'
-        'tel_sms,'
-        'mpay_amt,'
-        'pay_amt,'
-        'last_pay_date,'
-        'late_no_day,'
-        'bal,'
-        'hasImage,'
-        'takePhoto'
-        ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        [
-          '42435',
-          '2016-01-01 10:20:05.123',
-          '02',
-          '24',
-          'ณัฏฐพัชร',
-          '5',
-          'มหาชัย',
-          '84748494',
-          23432,
-          'ณัฏฐพัชร',
-          'ชัยประพันธ์',
-          '0897567880',
-          450,
-          0,
-          '2016-01-01 10:20:05.123',
-          0,
-          25000,
-          0,
-          0
-        ]);
-    return raw;
-  }
   clearPayments() async{
     final db = await database;
     db.rawDelete('delete from Payments');
@@ -171,7 +105,7 @@ class DBProvider {
         ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         [
           p.doc_no,
-          '2016-01-01 10:20:05.123',
+          p.pay_date.toString(),
           p.brh_id,
           p.path_no,
           p.path_name,
@@ -184,7 +118,7 @@ class DBProvider {
           p.tel_sms,
           p.mpay_amt,
           p.pay_amt,
-          '2016-01-01 10:20:05.123',
+          p.last_pay_date.toString(),
           p.late_no_day,
           p.bal,
           0,
@@ -194,14 +128,15 @@ class DBProvider {
     return res;
   }
 
-  // Future<List<Payments>> getAllPayments() async {
-  //   final db = await database;
-  //   var res = await db.query('Payments');
-  //   List<Payments> data = res.isNotEmpty
-  //       ? res.map((payment) => Payments.fromMap(payment)).toList()
-  //       : [];
-  //   return data;
-  // }
+  Future<List<Area>> getArea() async{
+    final db = await database;
+    var res = await db.rawQuery('select distinct area_no, area_name from Payments');
+    List<Area> data = res.isNotEmpty
+        ? res.map((payment) => Area.fromMap(payment)).toList()
+        : [];
+    return data;
+  }
+
   Future<List<Payment2>> getAllPayments() async {
     final db = await database;
     var res = await db.query('Payments');

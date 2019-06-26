@@ -1,5 +1,7 @@
-import 'package:de_mobile/pages/photoViewerPath.dart';
+import 'dart:io';
+
 import 'package:de_mobile/pages/viewPhoto.dart';
+import 'package:de_mobile/widgets/photoViewerPath.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:path/path.dart';
@@ -7,10 +9,12 @@ import 'package:path_provider/path_provider.dart';
 
 class TakePictureScreen extends StatefulWidget {
   final CameraDescription camera;
+  final String name;
 
   const TakePictureScreen({
     Key key,
     @required this.camera,
+    @required this.name
   }) : super(key: key);
 
   @override
@@ -61,8 +65,12 @@ class TakePictureScreenState extends State<TakePictureScreen> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.camera_alt),
+      floatingActionButton: Container(
+        width: 100,
+        height: 100,
+          child: FloatingActionButton(
+        child: Icon(Icons.camera_alt, size: 48),
+
         // Provide an onPressed callback.
         onPressed: () async {
           // Take the Picture in a try / catch block. If anything goes wrong,
@@ -73,26 +81,42 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
             // Construct the path where the image should be saved using the path
             // package.
-            final String imgName = '${DateTime.now()}.png';
+            final String imgName = '${widget.name}.png';
             final path = join(
-              // Store the picture in the temp directory.
-              // Find the temp directory using the `path_provider` plugin.
               (await getTemporaryDirectory()).path,
               imgName,
             );
             // Attempt to take a picture and log where it's been saved.
             await _controller.takePicture(path);
-            // Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) => ViewPhotoPage(path, imgName),
-            //         ),
-            //       );
             Navigator.push(context,
                 MaterialPageRoute<void>(builder: (BuildContext context) {
               return Scaffold(
                 appBar: AppBar(
                   title: Text(imgName),
+                  actions: <Widget>[
+                    FlatButton(
+                      child:
+                          Text('Save', style: TextStyle(color: Colors.white)),
+                      onPressed: () {
+                        File image = new File(path);
+                        _buildSaveImg(image, imgName);
+                        Navigator.pop(context, (bool res){
+                          print(res);
+                        });
+                      },
+                    ),
+                    FlatButton(
+                      child:
+                          Text('Delete', style: TextStyle(color: Colors.white)),
+                      onPressed: () {
+                        File image = new File(path);
+                        image.delete(recursive: false);
+                        Navigator.pop(context, (bool res){
+                          print(res);
+                        });
+                      },
+                    ),
+                  ],
                 ),
                 body: SizedBox.expand(
                   child: Hero(
@@ -102,9 +126,9 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                     ),
                   ),
                 ),
-                floatingActionButton: FloatingActionButton(
-                  child: Icon(Icons.settings),
-                ),
+                // floatingActionButton: FloatingActionButton(
+                //   child: Icon(Icons.settings),
+                // ),
               );
             }));
           } catch (e) {
@@ -112,7 +136,13 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             print(e);
           }
         },
-      ),
+      )),
     );
+  }
+  _buildSaveImg(File file, String name) async {
+    final String newPath = (await getApplicationDocumentsDirectory()).path;
+    final File newImage = await file.copy('$newPath/$name');
+    print(newImage.path);
+    file.delete(recursive: false);
   }
 }
