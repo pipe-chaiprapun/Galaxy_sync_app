@@ -89,7 +89,7 @@ class _getPaymentState extends State<GetPaymentPage> {
   Future fetchPayment() async {
     try {
       await 
-          get('http://192.168.0.62:5000/api/sync/test')
+          get('http://192.168.0.61:5000/api/sync/test')
           .then((Response response) {
         print(response.statusCode);
         //List<Payment2> payments = [];

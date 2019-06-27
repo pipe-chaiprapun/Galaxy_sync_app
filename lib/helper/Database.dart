@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:de_mobile/models/area.dart';
+import 'package:de_mobile/models/fuelCost.dart';
 import 'package:de_mobile/models/payment.dart';
 import 'package:de_mobile/models/payment2.dart';
 import 'package:path/path.dart';
@@ -50,7 +51,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute("CREATE TABLE Payments ("
-          "doc_no TEXT KEY,"
+          "doc_no TEXT,"
           "pay_date TEXT,"
           "brh_id TEXT,"
           "path_no TEXT,"
@@ -70,67 +71,97 @@ class DBProvider {
           "hasImage NUMERIC,"
           "takePhoto NUMERIC"
           ")");
+      await db.execute("CREATE TABLE FuelCost ("
+          "license_plate TEXT,"
+          "miles INTEGER,"
+          "cost INTEGER,"
+          "cost_date TEXT"
+          ")");
+      await db.execute("CREATE TABLE RepairCost ("
+          "license_plate TEXT,"
+          "description TEXT,"
+          "cost INTEGER,"
+          "cost_date TEXT"
+          ")");
+      await db.execute("CREATE TABLE TransportationCost ("
+          "description TEXT,"
+          "cost INTEGER"
+          "cost_date TEXT"
+          ")");
+      await db.execute("CREATE TABLE DefrayCost ("
+          "description TEXT,"
+          "cost INTEGER,"
+          "cost_date TEXT"
+          ")");
+      await db.execute("CREATE TABLE MiscellaneousCost ("
+          "name TEXT,"
+          "description TEXT,"
+          "cost INTEGER,"
+          "cost_date TEXT"
+          ")");
     });
   }
 
-  clearPayments() async{
+  clearPayments() async {
     final db = await database;
     db.rawDelete('delete from Payments');
   }
+
   Future<int> addPayments(List<Payment2> data) async {
     final db = await database;
     int res;
     data.forEach((p) async {
       res = await db.rawInsert(
-        'INSERT INTO Payments('
-        'doc_no,'
-        'pay_date,'
-        'brh_id,'
-        'path_no,'
-        'path_name,'
-        'area_no,'
-        'area_name,'
-        'lnc_no,'
-        'cust_no,'
-        'first_name,'
-        'last_name,'
-        'tel_sms,'
-        'mpay_amt,'
-        'pay_amt,'
-        'last_pay_date,'
-        'late_no_day,'
-        'bal,'
-        'hasImage,'
-        'takePhoto'
-        ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        [
-          p.doc_no,
-          p.pay_date.toString(),
-          p.brh_id,
-          p.path_no,
-          p.path_name,
-          p.area_no,
-          p.area_name,
-          p.lnc_no,
-          p.cust_no,
-          p.first_name,
-          p.last_name,
-          p.tel_sms,
-          p.mpay_amt,
-          p.pay_amt,
-          p.last_pay_date.toString(),
-          p.late_no_day,
-          p.bal,
-          0,
-          0
-        ]);
+          'INSERT INTO Payments('
+          'doc_no,'
+          'pay_date,'
+          'brh_id,'
+          'path_no,'
+          'path_name,'
+          'area_no,'
+          'area_name,'
+          'lnc_no,'
+          'cust_no,'
+          'first_name,'
+          'last_name,'
+          'tel_sms,'
+          'mpay_amt,'
+          'pay_amt,'
+          'last_pay_date,'
+          'late_no_day,'
+          'bal,'
+          'hasImage,'
+          'takePhoto'
+          ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+          [
+            p.doc_no,
+            p.pay_date.toString(),
+            p.brh_id,
+            p.path_no,
+            p.path_name,
+            p.area_no,
+            p.area_name,
+            p.lnc_no,
+            p.cust_no,
+            p.first_name,
+            p.last_name,
+            p.tel_sms,
+            p.mpay_amt,
+            p.pay_amt,
+            p.last_pay_date.toString(),
+            p.late_no_day,
+            p.bal,
+            0,
+            0
+          ]);
     });
     return res;
   }
 
-  Future<List<Area>> getArea() async{
+  Future<List<Area>> getArea() async {
     final db = await database;
-    var res = await db.rawQuery('select distinct area_no, area_name from Payments');
+    var res =
+        await db.rawQuery('select distinct area_no, area_name from Payments');
     List<Area> data = res.isNotEmpty
         ? res.map((payment) => Area.fromMap(payment)).toList()
         : [];
@@ -145,6 +176,25 @@ class DBProvider {
         : [];
     return data;
   }
+
+  Future<int> addFuelCost(FuelCost data) async {
+    final db = await database;
+    var raw = await db.rawInsert(
+        "INSERT Into FuelCost (license_plate,miles,cost,cost_date)"
+        " VALUES (?,?,?,?)",
+        [data.license_plate, data.miles, data.cost, data.cost_date.toString()]);
+    return raw;
+  }
+
+  Future<int> addRepairCost(RepairCost data) async{
+    final db = await database;
+    var raw = await db.rawInsert(
+        "INSERT Into RepairCost (license_plate,description,cost,cost_date)"
+        " VALUES (?,?,?,?)",
+        [data.license_plate, data.description, data.cost, data.cost_date.toString()]);
+    return raw;
+  }
+
   // Future<List<Client>> getAllClients() async {
   //   final db = await database;
   //   var res = await db.query("Client");

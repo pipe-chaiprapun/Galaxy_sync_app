@@ -52,7 +52,7 @@ class _paymentState extends State<PaymentPage> {
               if (snapshot.hasData) {
                 print('Query payment from sqlite');
                 _paymentsDataSource._payments.clear();
-                this._payDate = snapshot.data[0].pay_date;
+                this._payDate = snapshot.data.length > 0 ? snapshot.data[0].pay_date : null;
                 snapshot.data.forEach((p) => _paymentsDataSource._payments.add(
                     Payment2(
                         doc_no: p.doc_no,
@@ -77,6 +77,7 @@ class _paymentState extends State<PaymentPage> {
                     child:
                         ListView(children: <Widget>[_buildDataTable(context)]));
               } else if (snapshot.hasError) {
+                print(snapshot.hasError);
               } else {
                 return Center(child: CircularProgressIndicator());
               }
@@ -152,14 +153,14 @@ class _paymentState extends State<PaymentPage> {
         _buildHeader(context),
         SizedBox(height: 20),
         PaginatedDataTable(
-            header: Text(
+            header: this._payDate != null ? Text(
               'ประจำวันที่ ${ThaiDate(paydate: this._payDate).fullThaiDate}',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.teal),
               textAlign: TextAlign.center,
-            ),
+            ) : Text(''),
             rowsPerPage: _rowsPerPage,
             onRowsPerPageChanged: (int value) {
               setState(() {
