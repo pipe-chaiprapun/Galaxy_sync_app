@@ -1,5 +1,6 @@
 import 'package:de_mobile/helper/Database.dart';
 import 'package:de_mobile/models/fuelCost.dart';
+import 'package:de_mobile/widgets/dialog/alert.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -28,16 +29,9 @@ class _repairFormState extends State<RepairForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
           title: Text('ค่าซ่อมยานพาหนะ'),
-          //   actions: <Widget> [
-          //   FlatButton(
-          //     child: Text('SAVE', style: TextStyle(color: Colors.white)),
-          //     onPressed: () {
-          //       Navigator.pop(context, DismissDialogAction.save);
-          //     },
-          //   ),
-          // ],
         ),
         body: SafeArea(
             top: false,
@@ -60,12 +54,10 @@ class _repairFormState extends State<RepairForm> {
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           filled: true,
-                          icon: Icon(Icons.person),
+                          icon: Icon(Icons.person, size: 36,),
                           labelText: 'ทะเบียนรถ *',
                         ),
-                        onSaved: (String value) {
-                          _cost.license_plate = value;
-                        },
+                        onSaved: (String value) => _cost.license_plate = value,
                         validator: _validateLicense,
                         style: TextStyle(fontSize: 24),
                       ),
@@ -73,19 +65,21 @@ class _repairFormState extends State<RepairForm> {
                       TextFormField(
                         decoration: const InputDecoration(
                           filled: true,
-                          icon: Icon(Icons.details),
+                          icon: Icon(Icons.details, size: 36),
                           border: OutlineInputBorder(),
-                          labelText: 'รายละเอียด',
+                          labelText: 'รายละเอียด *',
                         ),
                         maxLines: 3,
                         validator: _validateDescription,
+                        onSaved: (String value) => _cost.description = value,
+                        style: TextStyle(fontSize: 24)
                       ),
                       const SizedBox(height: 24.0),
                       TextFormField(
                           autovalidate: _autovalidate,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
-                            icon: Icon(Icons.attach_money),
+                            icon: Icon(Icons.attach_money, size: 36),
                             border: OutlineInputBorder(),
                             labelText: 'ค่าซ่อม *',
                             prefixText: '฿',
@@ -95,12 +89,10 @@ class _repairFormState extends State<RepairForm> {
                           ),
                           maxLines: 1,
                           validator: _validateCost,
-                          onSaved: (String value) {
-                            _cost.cost = int.parse(value);
-                          },
+                          onSaved: (String value) => _cost.cost = int.parse(value),
                           style: TextStyle(fontSize: 24)),
-                      const SizedBox(height: 24.0),
-                      const SizedBox(height: 24.0),
+                      SizedBox(height: 24.0),
+                      SizedBox(height: 24.0),
                       Center(
                         child: RaisedButton(
                           child: const Text(
@@ -128,14 +120,17 @@ class _repairFormState extends State<RepairForm> {
 
   void _handleSubmitted() {
     final FormState form = _formKey.currentState;
+    Alert alert = new Alert();
+
     if (!form.validate()) {
-      // _autovalidate = true; // Start validating on every change.
-      // showInSnackBar('กรุณากรอกข้อมูลให้ถูกต้อง');
-      // return;
+      alert.message = 'กรุณากรอกข้อมูลให้ถูกต้อง!';
+      alert.snackBar(_scaffoldKey);
       _autovalidate = true;
+      // return;
     } else {
       form.save();
-      _comfirmSave().then((bool ans) {
+      alert.message = 'คุณต้องการบันทึกรายการค่าใช้จ่ายหรือไม่?';
+      alert.confirmDialog(context).then((bool ans) {
         print(ans);
         if (ans) {
           DBProvider.db
@@ -148,52 +143,21 @@ class _repairFormState extends State<RepairForm> {
             print(res.toString());
             if (res > 0) {
               print('saved success');
-              // showInSnackBar('บันทึกข้อมูลสำเร็จ');
               Navigator.pop(context, RepairFormAction.saved);
             } else {
-              Navigator.pop(context, RepairFormAction.fail);
+              alert.message = 'ไม่สามารถบันทีึกข้อมูลค่าใช้จ่ายได้!';
+              alert.alertDialog(context);
             }
+          }).catchError((onError){
+            alert.message = 'ไม่สามารถบันทึกข้อมูลค่าใช้จ่ายได้!';
+            alert.alertDialog(context).then((ans) {
+              alert.message = onError.toString();
+              alert.snackBar(_scaffoldKey);
+            });
           });
         }
       });
-      // showInSnackBar('${person.name}\'s phone number is ${person.phoneNumber}');
     }
-  }
-
-  Future<bool> _comfirmSave() async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              content: Text(
-                'คุณต้องการบันทึกรายการค่าใช้จ่ายหรือไม่?',
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  child: const Text('ตกลง'),
-                  onPressed: () {
-                    Navigator.of(context).pop(
-                        true); // Pops the confirmation dialog but not the page.
-                  },
-                ),
-                FlatButton(
-                  child: const Text('ยกเลิก'),
-                  onPressed: () {
-                    Navigator.of(context).pop(
-                        false); // Returning true to _onWillPop will pop again.
-                  },
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
-  }
-
-  void showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text(value),
-    ));
   }
 
   String _validateLicense(String value) {
@@ -201,8 +165,8 @@ class _repairFormState extends State<RepairForm> {
     return null;
   }
 
-  String _validateDescription(String value){
-    if (value.isEmpty) return 'กรุณากรอกเลขทะเบียนรถ!';
+  String _validateDescription(String value) {
+    if (value.isEmpty) return 'กรุณากรอกรายละเอียด';
     return null;
   }
 

@@ -1,11 +1,7 @@
-import 'package:de_mobile/models/fuelCost.dart';
 import 'package:de_mobile/widgets/cost/costMenu.dart';
-import 'package:flutter/gestures.dart';
+import 'package:de_mobile/widgets/dataTable/textCell.dart';
+import 'package:de_mobile/widgets/dataTable/titleColumn.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-
-typedef DemoItemBodyBuilder<T> = Widget Function(DemoItem<T> item);
-typedef ValueToString<T> = String Function(T value);
 
 class CostPage extends StatefulWidget {
   @override
@@ -14,266 +10,213 @@ class CostPage extends StatefulWidget {
   }
 }
 
-class CostState extends State<CostPage> with TickerProviderStateMixin {
-  List<DemoItem<dynamic>> _demoItems;
-  AnimationController _controller;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+class ExpandItem {
+  bool isExpanded;
+  final Icon icon;
+  final String header;
+  final Widget body;
+  final int amount;
+  ExpandItem({this.isExpanded, this.header, this.body, this.icon, this.amount});
+}
 
-  static const List<IconData> icons = const [
-    Icons.sms,
-    Icons.mail,
-    Icons.phone
+class CostState extends State<CostPage> {
+  List<ExpandItem> items = <ExpandItem>[
+    ExpandItem(
+        isExpanded: false,
+        header: 'ค่าน้ำมันเชื่อเพลิง',
+        body: Column(children: <Widget>[
+          Container(
+              color: Colors.green[400],
+              child: ListTile(
+                  title: Row(children: <Widget>[
+                Text('ทะเบียนรถ',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('เลขเข็มไมล์',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('จำนวนเงิน',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20))
+              ], mainAxisAlignment: MainAxisAlignment.spaceAround))),
+          Container(
+              child: ListTile(
+                  title: Row(children: <Widget>[
+            Text('6กว4940'),
+            Text('54435'),
+            Text('500')
+          ], mainAxisAlignment: MainAxisAlignment.spaceAround))),
+          Container(
+              child: ListTile(
+                  title: Row(children: <Widget>[
+            Text('รวม'),
+            Text(
+              'เลขเข็มไมล์',
+              style: TextStyle(color: Colors.white),
+            ),
+            Text('500')
+          ], mainAxisAlignment: MainAxisAlignment.spaceAround)))
+        ]),
+        icon: Icon(Icons.local_gas_station),
+        amount: 500),
+    ExpandItem(
+        isExpanded: false,
+        header: 'ค่าซ่อมยานพาหนะ',
+        body: Column(children: <Widget>[
+          Container(
+              color: Colors.green[400],
+              child: ListTile(
+                  title: Row(children: <Widget>[
+                Text('ทะเบียนรถ',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('รายละเอียด',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('จำนวนเงิน',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20))
+              ], mainAxisAlignment: MainAxisAlignment.spaceAround))),
+          Container(
+              child: ListTile(
+                  title: Row(children: <Widget>[
+            Text('6กว4940'),
+            Text('เปลี่ยนยางอะไหล่หน้า'),
+            Text('500')
+          ], mainAxisAlignment: MainAxisAlignment.spaceAround))),
+          Container(
+              child: ListTile(
+                  title: Row(children: <Widget>[
+            Text('รวม'),
+            Text(
+              'รายละเอียด',
+              style: TextStyle(color: Colors.white),
+            ),
+            Text('500')
+          ], mainAxisAlignment: MainAxisAlignment.spaceAround)))
+        ]),
+        icon: Icon(Icons.settings),
+        amount: 500),
+    ExpandItem(
+        isExpanded: false,
+        header: 'ค่ายานพาหนะ',
+        body: Column(children: <Widget>[
+          Container(
+              color: Colors.green[400],
+              child: ListTile(
+                  title: Row(children: <Widget>[
+                Text('รายละเอียด',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('จำนวนเงิน',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20))
+              ], mainAxisAlignment: MainAxisAlignment.spaceAround))),
+          Container(
+              child: ListTile(
+                  title: Row(
+                      children: <Widget>[Text('บีทีเอส'), Text('500')],
+                      mainAxisAlignment: MainAxisAlignment.spaceAround))),
+          Container(
+              child: ListTile(
+                  title: Row(children: <Widget>[
+            Text('รวม'),
+            Text('500')
+          ], mainAxisAlignment: MainAxisAlignment.spaceAround)))
+        ]),
+        icon: Icon(Icons.directions_bus),
+        amount: 500),
+    ExpandItem(
+        isExpanded: false,
+        header: 'ทดลองจ่าย',
+        body: Padding(
+            padding: EdgeInsets.all(10.0), child: Column(children: <Widget>[])),
+        icon: Icon(Icons.attach_money),
+        amount: 0),
+    ExpandItem(
+        isExpanded: false,
+        header: 'อื่นๆ',
+        body: Padding(
+            padding: EdgeInsets.all(10.0), child: Column(children: <Widget>[])),
+        icon: Icon(Icons.add_circle),
+        amount: 0)
   ];
+
+  ListView List_Criteria;
+
   @override
   void initState() {
     super.initState();
-
-    _controller = new AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-
-    _demoItems = <DemoItem<dynamic>>[
-      DemoItem<String>(
-        name: 'Trip',
-        value: 'Caribbean cruise',
-        hint: 'Change trip name',
-        valueToString: (String value) => value,
-        builder: (DemoItem<String> item) {
-          void close() {
-            setState(() {
-              item.isExpanded = false;
-            });
-          }
-
-          return Form(
-            child: Builder(
-              builder: (BuildContext context) {
-                return CollapsibleBody(
-                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                  onSave: () {
-                    Form.of(context).save();
-                    close();
-                  },
-                  onCancel: () {
-                    Form.of(context).reset();
-                    close();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: TextFormField(
-                      controller: item.textController,
-                      decoration: InputDecoration(
-                        hintText: item.hint,
-                        labelText: item.name,
-                      ),
-                      onSaved: (String value) {
-                        item.value = value;
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
-    ];
   }
 
   @override
   Widget build(BuildContext context) {
-
+    List_Criteria = new ListView(
+      children: [
+        Container(
+          padding: EdgeInsets.all(20),
+          child: ExpansionPanelList(
+            expansionCallback: (int index, bool isExpanded) {
+              setState(() {
+                items[index].isExpanded = !items[index].isExpanded;
+              });
+            },
+            animationDuration: Duration(milliseconds: 800),
+            children: items.map((ExpandItem item) {
+              return ExpansionPanel(
+                canTapOnHeader: true,
+                headerBuilder: (BuildContext context, bool isExpanded) {
+                  return _buildExpandedHeader(
+                      icon: item.icon,
+                      header: item.header,
+                      amount: item.amount);
+                },
+                isExpanded: item.isExpanded,
+                body: item.body,
+              );
+            }).toList(),
+          ),
+        )
+      ],
+    );
     return Scaffold(
         appBar: AppBar(
             title: Text('ค่าใช้จ่ายต่างๆ',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-        body: SingleChildScrollView(
-          child: SafeArea(
-            top: false,
-            bottom: false,
-            child: Container(
-              margin: const EdgeInsets.all(24.0),
-              child: ExpansionPanelList(
-                expansionCallback: (int index, bool isExpanded) {
-                  setState(() {
-                    _demoItems[index].isExpanded = !isExpanded;
-                  });
-                },
-                children:
-                    _demoItems.map<ExpansionPanel>((DemoItem<dynamic> item) {
-                  return ExpansionPanel(
-                    isExpanded: item.isExpanded,
-                    headerBuilder: item.headerBuilder,
-                    body: item.build(),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ),
+        body: List_Criteria,
         floatingActionButton: CostMenu());
   }
-}
 
-class DemoItem<T> {
-  DemoItem({
-    this.name,
-    this.value,
-    this.hint,
-    this.builder,
-    this.valueToString,
-  }) : textController = TextEditingController(text: valueToString(value));
-
-  final String name;
-  final String hint;
-  final TextEditingController textController;
-  final DemoItemBodyBuilder<T> builder;
-  final ValueToString<T> valueToString;
-  T value;
-  bool isExpanded = false;
-
-  ExpansionPanelHeaderBuilder get headerBuilder {
-    return (BuildContext context, bool isExpanded) {
-      return DualHeaderWithHint(
-        name: name,
-        value: valueToString(value),
-        hint: hint,
-        showHint: isExpanded,
-      );
-    };
-  }
-
-  Widget build() => builder(this);
-}
-
-class DualHeaderWithHint extends StatelessWidget {
-  const DualHeaderWithHint({
-    this.name,
-    this.value,
-    this.hint,
-    this.showHint,
-  });
-
-  final String name;
-  final String value;
-  final String hint;
-  final bool showHint;
-
-  Widget _crossFade(Widget first, Widget second, bool isExpanded) {
-    return AnimatedCrossFade(
-      firstChild: first,
-      secondChild: second,
-      firstCurve: const Interval(0.0, 0.6, curve: Curves.fastOutSlowIn),
-      secondCurve: const Interval(0.4, 1.0, curve: Curves.fastOutSlowIn),
-      sizeCurve: Curves.fastOutSlowIn,
-      crossFadeState:
-          isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-      duration: const Duration(milliseconds: 200),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final TextTheme textTheme = theme.textTheme;
-
-    return Row(
-      children: <Widget>[
-        Expanded(
-          flex: 2,
-          child: Container(
-            margin: const EdgeInsets.only(left: 24.0),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                name,
-                style: textTheme.body1.copyWith(fontSize: 15.0),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Container(
-            margin: const EdgeInsets.only(left: 24.0),
-            child: _crossFade(
-              Text(value, style: textTheme.caption.copyWith(fontSize: 15.0)),
-              Text(hint, style: textTheme.caption.copyWith(fontSize: 15.0)),
-              showHint,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class CollapsibleBody extends StatelessWidget {
-  const CollapsibleBody({
-    this.margin = EdgeInsets.zero,
-    this.child,
-    this.onSave,
-    this.onCancel,
-  });
-
-  final EdgeInsets margin;
-  final Widget child;
-  final VoidCallback onSave;
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final TextTheme textTheme = theme.textTheme;
-
-    return Column(
-      children: <Widget>[
-        Container(
-          margin: const EdgeInsets.only(
-                left: 24.0,
-                right: 24.0,
-                bottom: 24.0,
-              ) -
-              margin,
-          child: Center(
-            child: DefaultTextStyle(
-              style: textTheme.caption.copyWith(fontSize: 15.0),
-              child: child,
-            ),
-          ),
-        ),
-        const Divider(height: 1.0),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Container(
-                margin: const EdgeInsets.only(right: 8.0),
-                child: FlatButton(
-                  onPressed: onCancel,
-                  child: const Text('CANCEL',
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w500,
-                      )),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.only(right: 8.0),
-                child: FlatButton(
-                  onPressed: onSave,
-                  textTheme: ButtonTextTheme.accent,
-                  child: const Text('SAVE'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+  Widget _buildExpandedHeader({Icon icon, String header, int amount}) {
+    return ListTile(
+        leading: icon,
+        title: Text(header,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w400,
+            )),
+        trailing: Text('$amount บาท',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w100,
+            )));
   }
 }

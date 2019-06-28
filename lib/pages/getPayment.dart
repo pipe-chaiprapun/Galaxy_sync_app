@@ -1,6 +1,5 @@
 import 'package:de_mobile/helper/Database.dart';
 import 'package:de_mobile/models/payment2.dart';
-//import 'package:de_mobile/pages/resultGetPayment.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
@@ -89,7 +88,7 @@ class _getPaymentState extends State<GetPaymentPage> {
   Future fetchPayment() async {
     try {
       await 
-          get('http://192.168.0.61:5000/api/sync/test')
+          get('http://192.168.0.59:5000/api/sync/test')
           .then((Response response) {
         print(response.statusCode);
         //List<Payment2> payments = [];

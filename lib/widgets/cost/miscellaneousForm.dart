@@ -1,31 +1,28 @@
 import 'package:de_mobile/helper/Database.dart';
 import 'package:de_mobile/models/fuelCost.dart';
-import 'package:de_mobile/models/payment2.dart';
 import 'package:de_mobile/widgets/dialog/alert.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 
-class FuelForm extends StatefulWidget {
+class MiscellaneousForm extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _fuelFormState();
+    return _miscellaneousFormState();
   }
 }
 
-enum FuelFormAction { saved, cancel, fail }
+enum MiscellaneousFormAction { saved, cancel, fail }
 
-class _fuelFormState extends State<FuelForm> {
+class _miscellaneousFormState extends State<MiscellaneousForm> {
   // PaymentAction action;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  FuelCost _fuelCost = new FuelCost();
+  MiscellaneousCost _cost = new MiscellaneousCost();
   bool _autovalidate = false;
 
   @override
   initState() {
     super.initState();
-    // action = PaymentAction.ready;
   }
 
   @override
@@ -33,15 +30,7 @@ class _fuelFormState extends State<FuelForm> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('ค่าน้ำมันเชื้อเพลิง'),
-          //   actions: <Widget> [
-          //   FlatButton(
-          //     child: Text('SAVE', style: TextStyle(color: Colors.white)),
-          //     onPressed: () {
-          //       Navigator.pop(context, DismissDialogAction.save);
-          //     },
-          //   ),
-          // ],
+          title: Text('อื่นๆ'),
         ),
         body: SafeArea(
             top: false,
@@ -57,45 +46,39 @@ class _fuelFormState extends State<FuelForm> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      const SizedBox(height: 24.0),
+                      SizedBox(height: 24.0),
                       TextFormField(
-                        autovalidate: _autovalidate,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                        decoration: const InputDecoration(
                           filled: true,
-                          icon: Icon(Icons.person, size: 36),
-                          labelText: 'ทะเบียนรถ *',
+                          icon: Icon(Icons.list, size:36),
+                          border: OutlineInputBorder(),
+                          labelText: 'รายการ',
                         ),
-                        onSaved: (String value) => _fuelCost.license_plate = value,
-                        validator: _validateLicense,
-                        style: TextStyle(fontSize: 24),
+                        maxLines: 3,
+                        validator: _validatedName,
+                        onSaved: (String value) => _cost.name = value,
                       ),
                       SizedBox(height: 24.0),
                       TextFormField(
-                        autovalidate: _autovalidate,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          icon: Icon(Icons.network_check, size: 36),
-                          border: OutlineInputBorder(),
+                        decoration: const InputDecoration(
                           filled: true,
-                          labelText: 'เลขเข็มไมล์ *',
-                          suffixText: 'กิโลเมตร',
-                          suffixStyle: TextStyle(color: Colors.green),
+                          icon: Icon(Icons.details, size: 36),
+                          border: OutlineInputBorder(),
+                          labelText: 'รายละเอียด',
                         ),
-                        maxLines: 1,
-                        validator: _validateMiles,
-                        onSaved: (String value) => _fuelCost.miles = int.parse(value),
-                        style: TextStyle(fontSize: 24),
+                        maxLines: 3,
+                        validator: _validateDescription,
+                        onSaved: (String value) => _cost.description = value,
+                        style: TextStyle(fontSize: 24)
                       ),
-                      const SizedBox(height: 24.0),
+                      SizedBox(height: 24.0),
                       TextFormField(
                           autovalidate: _autovalidate,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             icon: Icon(Icons.attach_money, size: 36),
                             border: OutlineInputBorder(),
-                            labelText: 'ค่าน้ำมัน *',
+                            labelText: 'ราคา *',
                             prefixText: '฿',
                             suffixText: 'บาท',
                             filled: true,
@@ -103,7 +86,7 @@ class _fuelFormState extends State<FuelForm> {
                           ),
                           maxLines: 1,
                           validator: _validateCost,
-                          onSaved: (String value) => _fuelCost.cost = int.parse(value),
+                          onSaved: (String value) => _cost.cost = int.parse(value),
                           style: TextStyle(fontSize: 24)),
                       const SizedBox(height: 24.0),
                       const SizedBox(height: 24.0),
@@ -137,7 +120,7 @@ class _fuelFormState extends State<FuelForm> {
     Alert alert = new Alert();
 
     if (!form.validate()) {
-      alert.message = 'กรุณากรอกข้อมูลให้ถูกต้อง';
+      alert.message = 'กรุณากรอกข้อมูลให้ถูกต้อง!';
       alert.snackBar(_scaffoldKey);
       _autovalidate = true;
       // return;
@@ -148,20 +131,22 @@ class _fuelFormState extends State<FuelForm> {
         print(ans);
         if (ans) {
           DBProvider.db
-              .addFuelCost(new FuelCost(
-                  license_plate: _fuelCost.license_plate,
-                  miles: _fuelCost.miles,
-                  cost: _fuelCost.cost,
+              .addMiscellaneousCost(new MiscellaneousCost(
+                  name: _cost.name,
+                  description: _cost.description,
+                  cost: _cost.cost,
                   cost_date: DateTime.now()))
               .then((int res) {
             print(res.toString());
             if (res > 0) {
-              Navigator.pop(context, FuelFormAction.saved);
+              print('saved success');
+              Navigator.pop(context, MiscellaneousFormAction.saved);
             } else {
               alert.message = 'ไม่สามารถบันทีึกข้อมูลค่าใช้จ่ายได้!';
               alert.alertDialog(context);
             }
-          }).catchError((onError){
+          }).catchError((onError) {
+            print('onError');
             alert.message = 'ไม่สามารถบันทึกข้อมูลค่าใช้จ่ายได้!';
             alert.alertDialog(context).then((ans) {
               alert.message = onError.toString();
@@ -173,23 +158,13 @@ class _fuelFormState extends State<FuelForm> {
     }
   }
 
-  String _validateLicense(String value) {
-    if (value.isEmpty) return 'กรุณากรอกเลขทะเบียนรถ!';
+  String _validateDescription(String value) {
+    if (value.isEmpty) return 'กรุณากรอกรายละเอียด';
     return null;
   }
 
-  String _validateMiles(String value) {
-    if (value.isNotEmpty) {
-      if (!_isNumeric(value)) {
-        return 'กรุณากรอกข้อมูลเป็นตัวเลข!';
-      } else {
-        if (double.parse(value) < 1) {
-          return 'เลขไมล์ต้องมากกว่า0!';
-        }
-      }
-    } else if (value.isEmpty) {
-      return 'กรุณากรอกเลขไมล์!';
-    }
+  String _validatedName(String value) {
+    if (value.isEmpty) return 'กรุณากรอกชื่อรายการค่าใช้จ่าย!';
     return null;
   }
 
@@ -199,11 +174,11 @@ class _fuelFormState extends State<FuelForm> {
         return 'กรุณากรอกข้อมูลเป็นตัวเลข!';
       } else {
         if (double.parse(value) < 1) {
-          return 'ค่าน้ำมันต้องมากกว่า0!';
+          return 'ค่าใช้จ่ายต้องมากกว่า0!';
         }
       }
     } else if (value.isEmpty) {
-      return 'กรุณากรอกค่าน้ำมัน!';
+      return 'กรุณากรอกค่าใช้จ่าย!';
     }
     return null;
   }

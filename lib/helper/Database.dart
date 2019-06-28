@@ -85,7 +85,7 @@ class DBProvider {
           ")");
       await db.execute("CREATE TABLE TransportationCost ("
           "description TEXT,"
-          "cost INTEGER"
+          "cost INTEGER,"
           "cost_date TEXT"
           ")");
       await db.execute("CREATE TABLE DefrayCost ("
@@ -186,15 +186,46 @@ class DBProvider {
     return raw;
   }
 
-  Future<int> addRepairCost(RepairCost data) async{
+  Future<int> addRepairCost(RepairCost data) async {
     final db = await database;
     var raw = await db.rawInsert(
         "INSERT Into RepairCost (license_plate,description,cost,cost_date)"
         " VALUES (?,?,?,?)",
-        [data.license_plate, data.description, data.cost, data.cost_date.toString()]);
+        [
+          data.license_plate,
+          data.description,
+          data.cost,
+          data.cost_date.toString()
+        ]);
     return raw;
   }
 
+  Future<int> addTransportCost(TransportCost data) async {
+    final db = await database;
+    var raw = await db.rawInsert(
+        'INSERT Into TransportationCost (description, cost, cost_date)'
+        ' VALUES (?,?,?)',
+        [data.description, data.cost, data.cost_date.toString()]);
+    return raw;
+  }
+
+  Future<int> addDefrayCost(DefrayCost data) async {
+    final db = await database;
+    var raw = await db.rawInsert(
+        'INSERT Into DefrayCost (description, cost, cost_date)'
+        ' VALUES (?,?,?)',
+        [data.description, data.cost, data.cost_date.toString()]);
+    return raw;
+  }
+
+  Future<int> addMiscellaneousCost(MiscellaneousCost data) async {
+    final db = await database;
+    var raw = await db.rawInsert(
+        'INSERT Into MiscellaneousCost (name,description, cost, cost_date)'
+        ' VALUES (?,?,?,?)',
+        [data.name, data.description, data.cost, data.cost_date.toString()]);
+    return raw;
+  }
   // Future<List<Client>> getAllClients() async {
   //   final db = await database;
   //   var res = await db.query("Client");

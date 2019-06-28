@@ -278,11 +278,8 @@ class PaymentsDataSource extends DataTableSource {
             textAlign: TextAlign.right,
             decoration: InputDecoration(filled: true),
             keyboardType: TextInputType.number)),
-        // DataCell(Text('${payment.pay_amt}')),
         DataCell(TextCell('${payment.tel_sms}')),
         DataCell(TextCell('SUCCESS')),
-        // DataCell(Icon(Icons.camera_alt)),
-        // DataCell(Icon(Icons.photo_library))
       ],
     );
   }
