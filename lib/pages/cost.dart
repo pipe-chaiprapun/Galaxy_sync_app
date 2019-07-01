@@ -1,7 +1,11 @@
+import 'package:de_mobile/helper/Database.dart';
+import 'package:de_mobile/models/fuelCost.dart';
 import 'package:de_mobile/widgets/cost/costMenu.dart';
 import 'package:de_mobile/widgets/dataTable/textCell.dart';
 import 'package:de_mobile/widgets/dataTable/titleColumn.dart';
 import 'package:flutter/material.dart';
+
+enum CostType { fuel, repair, tranport, defray, miscellaneous }
 
 class CostPage extends StatefulWidget {
   @override
@@ -52,8 +56,8 @@ class CostState extends State<CostPage> {
             Text('54435'),
             Text('500')
           ], mainAxisAlignment: MainAxisAlignment.spaceAround))),
-          Container(
-              child: ListTile(
+          Column(
+              children: <Widget>[ListTile(
                   title: Row(children: <Widget>[
             Text('รวม'),
             Text(
@@ -61,7 +65,7 @@ class CostState extends State<CostPage> {
               style: TextStyle(color: Colors.white),
             ),
             Text('500')
-          ], mainAxisAlignment: MainAxisAlignment.spaceAround)))
+          ], mainAxisAlignment: MainAxisAlignment.spaceAround))])
         ]),
         icon: Icon(Icons.local_gas_station),
         amount: 500),
@@ -135,10 +139,9 @@ class CostState extends State<CostPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround))),
           Container(
               child: ListTile(
-                  title: Row(children: <Widget>[
-            Text('รวม'),
-            Text('500')
-          ], mainAxisAlignment: MainAxisAlignment.spaceAround)))
+                  title: Row(
+                      children: <Widget>[Text('รวม'), Text('500')],
+                      mainAxisAlignment: MainAxisAlignment.spaceAround)))
         ]),
         icon: Icon(Icons.directions_bus),
         amount: 500),
@@ -158,7 +161,7 @@ class CostState extends State<CostPage> {
         amount: 0)
   ];
 
-  ListView List_Criteria;
+  // ListView List_Criteria;
 
   @override
   void initState() {
@@ -167,7 +170,279 @@ class CostState extends State<CostPage> {
 
   @override
   Widget build(BuildContext context) {
-    List_Criteria = new ListView(
+    return Scaffold(
+        appBar: AppBar(
+            title: Text('ค่าใช้จ่ายต่างๆ',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+        body: _buildListCost(),
+        floatingActionButton: CostMenu());
+  }
+
+  Widget _buildExpandedHeader({Icon icon, String header, int amount}) {
+    return ListTile(
+        leading: icon,
+        title: Text(header,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w400,
+            )),
+        trailing: Text('$amount บาท',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w100,
+            )));
+  }
+
+  Widget _buildTileHeader(CostType type) {
+    switch (type) {
+      case CostType.fuel:
+        {
+          return Container(
+              color: Colors.green[400],
+              child: ListTile(
+                  title: Row(children: <Widget>[
+                Text('ทะเบียนรถ',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('เลขเข็มไมล์',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('จำนวนเงิน',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20))
+              ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+        }
+        break;
+      case CostType.repair:
+        {
+          return Container(
+              color: Colors.green[400],
+              child: ListTile(
+                  title: Row(children: <Widget>[
+                Text('ทะเบียนรถ',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('รายละเอียด',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('จำนวนเงิน',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20))
+              ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+        }
+        break;
+      case CostType.tranport:
+        {
+          return Container(
+              color: Colors.green[400],
+              child: ListTile(
+                  title: Row(children: <Widget>[
+                Text('รายละเอียด',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('จำนวนเงิน',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20))
+              ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+        }
+        break;
+      case CostType.defray:
+        {
+          return Container(
+              color: Colors.green[400],
+              child: ListTile(
+                  title: Row(children: <Widget>[
+                Text('รายละเอียด',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('จำนวนเงิน',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20))
+              ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+        }
+        break;
+      case CostType.miscellaneous:
+        {
+          return Container(
+              color: Colors.green[400],
+              child: ListTile(
+                  title: Row(children: <Widget>[
+                Text('รายการ',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('รายละเอียด',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20)),
+                Text('จำนวนเงิน',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20))
+              ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+        }
+    }
+  }
+  
+  // Widget _buildTileBody(CostType type) {
+  //   switch (type) {
+  //     case CostType.fuel:
+  //       {
+  //         return FutureBuilder(
+  //           future: DBProvider.db.getAllFuelCost(),
+  //           builder:
+  //               (BuildContext context, AsyncSnapshot<List<FuelCost>> snapshot) {
+  //             if (snapshot.hasData) {
+  //               return snapshot.data.map((FuelCost f){
+  //                 return Container()
+  //               });
+
+  //               snapshot.data.forEach((p) => _paymentsDataSource._payments.add(
+  //                   Payment2(
+  //                       doc_no: p.doc_no,
+  //                       pay_date: DateTime.now(),
+  //                       brh_id: p.brh_id,
+  //                       path_no: p.path_no,
+  //                       path_name: p.path_name,
+  //                       area_no: p.area_name,
+  //                       lnc_no: p.lnc_no,
+  //                       cust_no: p.cust_no,
+  //                       first_name: p.first_name,
+  //                       last_name: p.last_name,
+  //                       tel_sms: p.tel_sms,
+  //                       mpay_amt: p.mpay_amt,
+  //                       pay_amt: p.pay_amt,
+  //                       last_pay_date: DateTime.now(),
+  //                       late_no_day: p.late_no_day,
+  //                       bal: p.bal,
+  //                       takePhoto: false,
+  //                       hasImage: false)));
+  //               return Scrollbar(
+  //                   child:
+  //                       ListView(children: <Widget>[_buildDataTable(context)]));
+  //             } else if (snapshot.hasError) {
+  //               print(snapshot.hasError);
+  //             } else {
+  //               return Center(child: CircularProgressIndicator());
+  //             }
+  //           });
+  //       }
+  //       break;
+  //     case CostType.repair:
+  //       {
+  //         return Container(
+  //             color: Colors.green[400],
+  //             child: ListTile(
+  //                 title: Row(children: <Widget>[
+  //               Text('ทะเบียนรถ',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20)),
+  //               Text('รายละเอียด',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20)),
+  //               Text('จำนวนเงิน',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20))
+  //             ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+  //       }
+  //       break;
+  //     case CostType.tranport:
+  //       {
+  //         return Container(
+  //             color: Colors.green[400],
+  //             child: ListTile(
+  //                 title: Row(children: <Widget>[
+  //               Text('รายละเอียด',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20)),
+  //               Text('จำนวนเงิน',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20))
+  //             ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+  //       }
+  //       break;
+  //     case CostType.defray:
+  //       {
+  //         return Container(
+  //             color: Colors.green[400],
+  //             child: ListTile(
+  //                 title: Row(children: <Widget>[
+  //               Text('รายละเอียด',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20)),
+  //               Text('จำนวนเงิน',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20))
+  //             ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+  //       }
+  //       break;
+  //     case CostType.miscellaneous:
+  //       {
+  //         return Container(
+  //             color: Colors.green[400],
+  //             child: ListTile(
+  //                 title: Row(children: <Widget>[
+  //               Text('รายการ',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20)),
+  //               Text('รายละเอียด',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20)),
+  //               Text('จำนวนเงิน',
+  //                   style: TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.white,
+  //                       fontSize: 20))
+  //             ], mainAxisAlignment: MainAxisAlignment.spaceAround)));
+  //       }
+  //   }
+  // }
+
+  Widget _buildListCost() {
+    return ListView(
       children: [
         Container(
           padding: EdgeInsets.all(20),
@@ -195,28 +470,5 @@ class CostState extends State<CostPage> {
         )
       ],
     );
-    return Scaffold(
-        appBar: AppBar(
-            title: Text('ค่าใช้จ่ายต่างๆ',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-        body: List_Criteria,
-        floatingActionButton: CostMenu());
-  }
-
-  Widget _buildExpandedHeader({Icon icon, String header, int amount}) {
-    return ListTile(
-        leading: icon,
-        title: Text(header,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w400,
-            )),
-        trailing: Text('$amount บาท',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w100,
-            )));
   }
 }

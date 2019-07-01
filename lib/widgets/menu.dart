@@ -49,7 +49,8 @@ class _MenuState extends State<Menu> {
       "name": "ส่งใบรายวัน",
       // "icon": Icons.send,
       // "color": Colors.grey[600],
-      "image": "assets/images/menu/upload.png"
+      "image": "assets/images/menu/upload.png",
+      'url': '/sendPayment'
       // "color": Colors.amber
     },
     {

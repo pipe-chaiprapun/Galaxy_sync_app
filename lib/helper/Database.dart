@@ -185,6 +185,15 @@ class DBProvider {
         [data.license_plate, data.miles, data.cost, data.cost_date.toString()]);
     return raw;
   }
+  Future<List<FuelCost>> getAllFuelCost() async {
+    final db = await database;
+    var res = await db.query('FuelCost');
+    List<FuelCost> data = res.isNotEmpty
+        ? res.map((cost) => FuelCost.fromMap(cost)).toList()
+        : [];
+    return data;
+  }
+  
 
   Future<int> addRepairCost(RepairCost data) async {
     final db = await database;
