@@ -38,7 +38,7 @@ class _paymentState extends State<PaymentPage> {
   @override
   Widget build(BuildContext context) {
     this._paymentsDataSource = new PaymentsDataSource(context);
-    DBProvider.db.getArea().then((List<Area> res){
+    DBProvider.db.getArea().then((List<Area> res) {
       print(res.first.area_no + res.first.area_name);
     });
     return Scaffold(
@@ -52,7 +52,8 @@ class _paymentState extends State<PaymentPage> {
               if (snapshot.hasData) {
                 print('Query payment from sqlite');
                 _paymentsDataSource._payments.clear();
-                this._payDate = snapshot.data.length > 0 ? snapshot.data[0].pay_date : null;
+                this._payDate =
+                    snapshot.data.length > 0 ? snapshot.data[0].pay_date : null;
                 snapshot.data.forEach((p) => _paymentsDataSource._payments.add(
                     Payment2(
                         doc_no: p.doc_no,
@@ -70,9 +71,10 @@ class _paymentState extends State<PaymentPage> {
                         pay_amt: p.pay_amt,
                         last_pay_date: DateTime.now(),
                         late_no_day: p.late_no_day,
-                        bal: p.bal,
-                        takePhoto: false,
-                        hasImage: false)));
+                        bal: p.bal
+                        // takePhoto: false,
+                        // hasImage: false
+                        )));
                 return Scrollbar(
                     child:
                         ListView(children: <Widget>[_buildDataTable(context)]));
@@ -153,14 +155,16 @@ class _paymentState extends State<PaymentPage> {
         _buildHeader(context),
         SizedBox(height: 20),
         PaginatedDataTable(
-            header: this._payDate != null ? Text(
-              'ประจำวันที่ ${ThaiDate(paydate: this._payDate).fullThaiDate}',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.teal),
-              textAlign: TextAlign.center,
-            ) : Text(''),
+            header: this._payDate != null
+                ? Text(
+                    'ประจำวันที่ ${ThaiDate(paydate: this._payDate).fullThaiDate}',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal),
+                    textAlign: TextAlign.center,
+                  )
+                : Text(''),
             rowsPerPage: _rowsPerPage,
             onRowsPerPageChanged: (int value) {
               setState(() {
@@ -251,6 +255,10 @@ class PaymentsDataSource extends DataTableSource {
     assert(index >= 0);
     if (index >= _payments.length) return null;
     final Payment2 payment = _payments[index];
+    final txtPayAmtController = TextEditingController();
+    if(payment.pay_amt>0){
+      txtPayAmtController.text = payment.pay_amt.toString();
+    }
     return DataRow.byIndex(
       index: index,
       // selected: payment.selected,
@@ -275,9 +283,19 @@ class PaymentsDataSource extends DataTableSource {
         DataCell(TextCell('${payment.mpay_amt}')),
         DataCell(TextCell('${payment.pay_amt / payment.mpay_amt}')),
         DataCell(TextField(
-            textAlign: TextAlign.right,
-            decoration: InputDecoration(filled: true),
-            keyboardType: TextInputType.number)),
+          textAlign: TextAlign.right,
+          decoration: InputDecoration(filled: true),
+          keyboardType: TextInputType.number,
+          onEditingComplete: () {
+            print(txtPayAmtController.text);
+            print(payment.lnc_no);
+            DBProvider.db.updatePayment(payment.lnc_no, int.parse(txtPayAmtController.text)).then((int res){
+              print('updated');
+              print(res);
+            });
+          },
+          controller: txtPayAmtController,
+        )),
         DataCell(TextCell('${payment.tel_sms}')),
         DataCell(TextCell('SUCCESS')),
       ],

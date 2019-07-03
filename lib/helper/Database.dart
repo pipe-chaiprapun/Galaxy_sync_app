@@ -176,6 +176,13 @@ class DBProvider {
         : [];
     return data;
   }
+  Future<int> updatePayment(String lnc_no, int amt) async {
+    final db = await database;
+    var res = await db.rawUpdate(
+      'update Payments set pay_amt = ? where lnc_no = ?',
+    [amt, lnc_no]);
+    return res;
+  }
 
   Future<int> addFuelCost(FuelCost data) async {
     final db = await database;

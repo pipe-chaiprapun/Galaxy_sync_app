@@ -143,29 +143,6 @@ class HomePage extends StatelessWidget {
                           );
                         }).toList(),
                       )
-                      // The drawer's "details" view.
-                      // SlideTransition(
-                      //   position: _drawerDetailsPosition,
-                      //   child: FadeTransition(
-                      //     opacity: ReverseAnimation(_drawerContentsOpacity),
-                      //     child: Column(
-                      //       mainAxisSize: MainAxisSize.min,
-                      //       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      //       children: <Widget>[
-                      //         ListTile(
-                      //           leading: const Icon(Icons.add),
-                      //           title: const Text('Add account'),
-                      //           onTap: _showNotImplementedMessage,
-                      //         ),
-                      //         ListTile(
-                      //           leading: const Icon(Icons.settings),
-                      //           title: const Text('Manage accounts'),
-                      //           onTap: _showNotImplementedMessage,
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ],

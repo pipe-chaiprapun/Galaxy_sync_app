@@ -16,7 +16,10 @@ class Payment2 {
       this.pay_amt,
       this.last_pay_date,
       this.late_no_day,
-      this.bal, this.hasImage, this.takePhoto});
+      this.bal
+      // this.hasImage, 
+      // this.takePhoto
+      });
 
   final String doc_no;
   final DateTime pay_date;
@@ -35,8 +38,8 @@ class Payment2 {
   final DateTime last_pay_date;
   final int late_no_day;
   final int bal;
-  final bool hasImage;
-  final bool takePhoto;
+  // final bool hasImage;
+  // final bool takePhoto;
 
   factory Payment2.fromMap(Map<String, dynamic> json) => new Payment2(
       doc_no: json['doc_no'],
@@ -76,5 +79,27 @@ class Payment2 {
         last_pay_date: DateTime.parse(json['last_pay_date']),
         late_no_day: json['late_no_day'],
         bal: json['bal']);
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = new Map<String, dynamic>();
+    json['doc_no'] = doc_no;
+    json['pay_date'] = pay_date.toString();
+    json['brh_id'] = brh_id;
+    json['path_no'] = path_no;
+    json['path_name'] = path_name;
+    json['area_no'] = area_no;
+    json['area_name'] = area_name;
+    json['lnc_no'] = lnc_no;
+    json['cust_no'] = cust_no;
+    json['first_name'] = first_name;
+    json['last_name'] = last_name;
+    json['tel_sms'] = tel_sms;
+    json['mpay_amt'] = mpay_amt;
+    json['pay_amt'] = pay_amt;
+    json['last_pay_date'] = last_pay_date.toString();
+    json['late_no_day'] = late_no_day;
+    json['bal'] = bal;
+    return json;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:de_mobile/constants/httpService.dart';
 import 'package:de_mobile/helper/Database.dart';
 import 'package:de_mobile/models/payment2.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ enum PaymentAction { ready,fetch, save, complete }
 class _getPaymentState extends State<GetPaymentPage> {
   PaymentAction action;
   List<Payment2> payments = [];
+  String getPaymentUrl = '${HttpService.host}:${HttpService.port}${HttpService.getPayment}';
 
   @override
   initState() {
@@ -88,7 +90,7 @@ class _getPaymentState extends State<GetPaymentPage> {
   Future fetchPayment() async {
     try {
       await 
-          get('http://192.168.0.76:5000/api/sync/test')
+          get(getPaymentUrl)
           .then((Response response) {
         print(response.statusCode);
         //List<Payment2> payments = [];
