@@ -235,7 +235,7 @@ class CatalogState extends State<CatalogPage> {
     final Orientation orientation = MediaQuery.of(context).orientation;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('รายงานสินค้า', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))
+        title: const Text('รายการสินค้า', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))
       ),
       backgroundColor: Colors.black,
       body: Column(

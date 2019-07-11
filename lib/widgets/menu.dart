@@ -41,8 +41,9 @@ class _MenuState extends State<Menu> {
       "name": "ถ่ายรูปเพิ่มเติม",
       // "icon": Icons.camera_alt,
       // "color": Colors.grey[600],
-      "image": "assets/images/menu/camera2.png"
+      "image": "assets/images/menu/camera2.png",
       // "color": Colors.purple
+      'url': '/gallery'
     },
     {
       "id": "sendPayment",

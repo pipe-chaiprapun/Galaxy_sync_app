@@ -16,8 +16,12 @@ class Payment2 {
       this.pay_amt,
       this.last_pay_date,
       this.late_no_day,
-      this.bal
-      // this.hasImage, 
+      this.bal,
+      this.placeImage,
+      this.homeImage,
+      this.receiveImage,
+      this.traceImage
+      // this.hasImage,
       // this.takePhoto
       });
 
@@ -38,6 +42,10 @@ class Payment2 {
   final DateTime last_pay_date;
   final int late_no_day;
   final int bal;
+  final int placeImage;
+  final int homeImage;
+  final int receiveImage;
+  final int traceImage;
   // final bool hasImage;
   // final bool takePhoto;
 
@@ -58,7 +66,11 @@ class Payment2 {
       pay_amt: json['pay_amt'],
       last_pay_date: DateTime.parse(json['last_pay_date']),
       late_no_day: json['late_no_day'],
-      bal: json['bal']);
+      bal: json['bal'],
+      placeImage: json['placeImage'],
+      homeImage: json['homeImage'],
+      receiveImage: json['receiveImage'],
+      traceImage: json['traceImage']);
 
   factory Payment2.fromJson(Map<String, dynamic> json) {
     return Payment2(
@@ -78,7 +90,11 @@ class Payment2 {
         pay_amt: json['pay_amt'],
         last_pay_date: DateTime.parse(json['last_pay_date']),
         late_no_day: json['late_no_day'],
-        bal: json['bal']);
+        bal: json['bal'],
+        placeImage: json['placeImage'],
+        homeImage: json['homeImage'],
+        receiveImage: json['receiveImage'],
+        traceImage: json['traceImage']);
   }
 
   Map<String, dynamic> toJson() {
@@ -100,6 +116,10 @@ class Payment2 {
     json['last_pay_date'] = last_pay_date.toString();
     json['late_no_day'] = late_no_day;
     json['bal'] = bal;
+    json['placeImage'] = placeImage;
+    json['homeImage'] = homeImage;
+    json['receiveImage'] = receiveImage;
+    json['traceImage'] = traceImage;
     return json;
   }
 }

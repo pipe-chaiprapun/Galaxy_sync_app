@@ -9,6 +9,7 @@ class Alert extends StatelessWidget {
   Widget build(BuildContext context) {
     return null;
   }
+
   Future<bool> alertDialog(BuildContext context) async {
     return await showDialog<bool>(
           context: context,
@@ -29,6 +30,7 @@ class Alert extends StatelessWidget {
         ) ??
         false;
   }
+
   Future<bool> confirmDialog(BuildContext context) async {
     return await showDialog<bool>(
           context: context,
@@ -56,9 +58,32 @@ class Alert extends StatelessWidget {
         ) ??
         false;
   }
+
   void snackBar(GlobalKey<ScaffoldState> key) {
     key.currentState.showSnackBar(SnackBar(
       content: Text(this.message),
     ));
+  }
+
+  void snackBarByContext(BuildContext context) {
+    Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(
+          this.message,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        duration: Duration(seconds: 8)));
+  }
+
+  snackBarByContextWithAction(BuildContext context,
+      {String message, Function function}) async {
+    Scaffold.of(context).hideCurrentSnackBar();
+    Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(
+          message == null ? this.message : message,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        duration: Duration(seconds: 60),
+        action: SnackBarAction(
+            textColor: Colors.white, label: 'ลบ', onPressed: () {})));
   }
 }

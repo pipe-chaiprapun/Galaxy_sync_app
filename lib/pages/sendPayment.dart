@@ -4,7 +4,6 @@ import 'package:de_mobile/helper/Database.dart';
 import 'package:de_mobile/models/payment2.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 import 'package:path/path.dart';
@@ -22,10 +21,12 @@ enum PaymentAction {
   check,
   connected,
   disconnected,
-  send,
-  complete,
-  incomplete,
+  sendPayment,
+  confirmPayment,
+  paymentComplete,
+  paymentIncomplete,
   sendPhoto,
+  confirmPhoto,
   photoComplete,
   photoIncomplete
 }
@@ -41,7 +42,7 @@ class _sendPaymentState extends State<SendPaymentPage> {
       '${HttpService.host}:${HttpService.port}${HttpService.sendPayment}';
   String sendPhotosUrl =
       '${HttpService.host}:${HttpService.port}${HttpService.sendPhoto}';
-  double uploadPhotoProgress = 0;
+  double _progress = 0;
 
   @override
   initState() {
@@ -78,17 +79,23 @@ class _sendPaymentState extends State<SendPaymentPage> {
       case PaymentAction.disconnected:
         return _buildDisconnectedUI();
         break;
-      case PaymentAction.send:
-        return _buildSendUI();
+      case PaymentAction.sendPayment:
+        return _buildSendPaymentUI();
         break;
-      case PaymentAction.complete:
+      case PaymentAction.confirmPayment:
+        return _buildPaymentConfirmUI();
+        break;
+      case PaymentAction.paymentComplete:
         return _buildCompletedUI();
         break;
-      case PaymentAction.incomplete:
+      case PaymentAction.paymentIncomplete:
         return _buildIncompleteUI();
         break;
       case PaymentAction.sendPhoto:
         return _buildSendPhotosUI();
+        break;
+      case PaymentAction.confirmPhoto:
+        return _buildPhotoConfirmUI();
         break;
       case PaymentAction.photoComplete:
         return _buildCompletedPhotosUI();
@@ -145,13 +152,28 @@ class _sendPaymentState extends State<SendPaymentPage> {
     print(payments.first.toJson());
     List<Map<String, dynamic>> body = new List<Map<String, dynamic>>();
     payments.forEach((p) => body.add(p.toJson()));
-    post(sendPaymentUrl,
-        body: json.encode(body),
-        headers: {'Content-Type': 'application/json'}).then((Response res) {
+    dio.Dio httpClient = new dio.Dio();
+    dio.DioHttpHeaders headers = new dio.DioHttpHeaders();
+    headers.add('Content-Type', 'application/json');
+    httpClient.post(sendPaymentUrl,
+        data: body,
+        options: dio.Options(headers: {'Content-Type': 'application/json'}),
+        onSendProgress: ((sent, total) {
+      var percent = (sent / total) * 100;
+      setState(() {
+        _progress = percent;
+      });
+      if (sent == total) {
+        setState(() {
+          action = PaymentAction.confirmPayment;
+        });
+      }
+    })).then((res) {
+      _progress = 0;
       print(res.statusCode);
       if (res.statusCode == 200) {
         print('http ok');
-        print(res.body);
+        print(res.data);
         setState(() {
           action = PaymentAction.sendPhoto;
         });
@@ -159,23 +181,54 @@ class _sendPaymentState extends State<SendPaymentPage> {
       } else {
         print('http code error');
         print(res.statusCode);
-        print(res.reasonPhrase);
-        print(json.decode(res.body));
+        print(res.statusMessage);
+        print(json.decode(res.data));
         setState(() {
-          action = PaymentAction.incomplete;
+          action = PaymentAction.paymentIncomplete;
         });
       }
     }).timeout(Duration(seconds: 60), onTimeout: () {
       print('time out');
       setState(() {
-        action = PaymentAction.incomplete;
+        action = PaymentAction.paymentIncomplete;
       });
     }).catchError((onError) {
       print(onError);
       setState(() {
-        action = PaymentAction.incomplete;
+        action = PaymentAction.paymentIncomplete;
       });
     });
+    // post(sendPaymentUrl,
+    //     body: json.encode(body),
+    //     headers: {'Content-Type': 'application/json'}).then((Response res) {
+    //   print(res.statusCode);
+    //   if (res.statusCode == 200) {
+    //     print('http ok');
+    //     print(res.body);
+    //     setState(() {
+    //       action = PaymentAction.sendPhoto;
+    //     });
+    //     sendPhotos();
+    //   } else {
+    //     print('http code error');
+    //     print(res.statusCode);
+    //     print(res.reasonPhrase);
+    //     print(json.decode(res.body));
+    //     setState(() {
+    //       action = PaymentAction.incomplete;
+    //     });
+    //   }
+    // }).timeout(Duration(seconds: 60), onTimeout: () {
+    //   print('time out');
+    //   setState(() {
+    //     action = PaymentAction.incomplete;
+    //   });
+    // }).catchError((onError) {
+    //   print(onError);
+    //   setState(() {
+    //     action = PaymentAction.incomplete;
+    //   });
+    // });
   }
 
   sendPhotos() {
@@ -188,18 +241,24 @@ class _sendPaymentState extends State<SendPaymentPage> {
           List<dio.UploadFileInfo> uploadFiles = new List<dio.UploadFileInfo>();
           dio.Dio httpClient = new dio.Dio();
           for (var file in files) {
-            print(basename(file.path));
+            // print(basename(file.path));
             uploadFiles.add(new dio.UploadFileInfo(
                 new File(file.path), basename(file.path)));
           }
           dio.FormData formData = new dio.FormData.from({"files": uploadFiles});
-          httpClient.post(sendPhotosUrl, data: formData, onSendProgress: (sent, total){
-            var percent = (sent/total)*100;
+          httpClient.post(sendPhotosUrl, data: formData,
+              onSendProgress: (sent, total) {
+            if (sent == total) {
+              setState(() {
+                action = PaymentAction.confirmPhoto;
+              });
+            }
+            var percent = (sent / total) * 100;
             setState(() {
-              uploadPhotoProgress = percent;
+              _progress = percent;
             });
           }).then((res) {
-            uploadPhotoProgress = 0;
+            _progress = 0;
             if (res.statusCode == 200) {
               print('upload photo ok');
               print(res.data);
@@ -210,7 +269,7 @@ class _sendPaymentState extends State<SendPaymentPage> {
               print('upload photos error');
               print(res.data);
               setState(() {
-                action = PaymentAction.incomplete;
+                action = PaymentAction.photoIncomplete;
               });
             }
           }).catchError((onError) {
@@ -262,7 +321,7 @@ class _sendPaymentState extends State<SendPaymentPage> {
                   style: TextStyle(fontSize: 24, color: Colors.white)),
               onPressed: () {
                 setState(() {
-                  action = PaymentAction.send;
+                  action = PaymentAction.sendPayment;
                   DBProvider.db.getAllPayments().then((res) {
                     print(res.length);
                     if (res != null) {
@@ -306,7 +365,7 @@ class _sendPaymentState extends State<SendPaymentPage> {
         mainAxisAlignment: MainAxisAlignment.center);
   }
 
-  Widget _buildSendUI() {
+  Widget _buildSendPaymentUI() {
     return Column(
         children: <Widget>[
           CircularProgressIndicator(),
@@ -315,6 +374,29 @@ class _sendPaymentState extends State<SendPaymentPage> {
           ),
           Text(
             'กำลังส่งใบรายวัน',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            '${_progress.toStringAsFixed(1)} %',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          )
+        ],
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center);
+  }
+
+  Widget _buildPaymentConfirmUI() {
+    return Column(
+        children: <Widget>[
+          CircularProgressIndicator(),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'กำลังบันทึกใบรายวันลงฐานข้อมูล',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           )
         ],
@@ -351,7 +433,7 @@ class _sendPaymentState extends State<SendPaymentPage> {
                   style: TextStyle(fontSize: 28, color: Colors.white)),
               onPressed: () {
                 setState(() {
-                  action = PaymentAction.send;
+                  action = PaymentAction.sendPayment;
                   DBProvider.db.getAllPayments().then((res) {
                     print(res.length);
                     if (res != null) {
@@ -381,7 +463,23 @@ class _sendPaymentState extends State<SendPaymentPage> {
             height: 10,
           ),
           Text(
-            '${uploadPhotoProgress.toStringAsFixed(1)} %',
+            '${_progress.toStringAsFixed(1)} %',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          )
+        ],
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center);
+  }
+
+  Widget _buildPhotoConfirmUI() {
+    return Column(
+        children: <Widget>[
+          CircularProgressIndicator(),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'กำลังบันทึกรูปลงหน่วยจัดเก็บข้อมูล',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           )
         ],

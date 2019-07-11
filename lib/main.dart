@@ -1,5 +1,6 @@
 import 'package:de_mobile/pages/catalog.dart';
 import 'package:de_mobile/pages/cost.dart';
+import 'package:de_mobile/pages/gallery.dart';
 import 'package:de_mobile/pages/getPayment.dart';
 import 'package:de_mobile/pages/home.dart';
 import 'package:de_mobile/pages/payment.dart';
@@ -46,7 +47,8 @@ class _MyAppState extends State<MyApp> {
         // '/payment2': (BuildContext context) => PaymentPage2(),
         '/cost': (BuildContext context) => CostPage(),
         '/getPayment': (BuildContext context) => GetPaymentPage(),
-        '/sendPayment': (BuildContext context) => SendPaymentPage()
+        '/sendPayment': (BuildContext context) => SendPaymentPage(),
+        '/gallery': (BuildContext context) => GalleryPage()
         // '/products': (BuildContext context) => ProductsPage(), //ProductsPage(_products),
         // '/admin': (BuildContext context) => ProductsAdminPage()
       }

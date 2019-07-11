@@ -2,14 +2,13 @@ import 'package:de_mobile/helper/Database.dart';
 import 'package:de_mobile/helper/ThaiDate.dart';
 import 'package:de_mobile/models/area.dart';
 import 'package:de_mobile/models/payment2.dart';
+import 'package:de_mobile/models/placePhoto.dart';
 import 'package:de_mobile/pages/takePhoto.dart';
 import 'package:de_mobile/widgets/dataTable/textCell.dart';
 import 'package:de_mobile/widgets/dataTable/titleColumn.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:camera/camera.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 
 class PaymentPage extends StatefulWidget {
   @override
@@ -19,12 +18,13 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _paymentState extends State<PaymentPage> {
-  int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
-  // int _rowsPerPage = 20;
+  //int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
+  int _rowsPerPage = 20;
   int _sortColumnIndex;
   bool _sortAscending = true;
   PaymentsDataSource _paymentsDataSource;
   DateTime _payDate;
+  List<String> _area;
 
   void _sort<T>(
       Comparable<T> getField(Payment2 d), int columnIndex, bool ascending) {
@@ -39,7 +39,9 @@ class _paymentState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     this._paymentsDataSource = new PaymentsDataSource(context);
     DBProvider.db.getArea().then((List<Area> res) {
-      print(res.first.area_no + res.first.area_name);
+      _area = new List<String>();
+      _area.add('พื้นที่ทั้งหมด');
+      res.forEach((a) => _area.add(a.area_name));
     });
     return Scaffold(
         appBar: AppBar(
@@ -71,7 +73,11 @@ class _paymentState extends State<PaymentPage> {
                         pay_amt: p.pay_amt,
                         last_pay_date: DateTime.now(),
                         late_no_day: p.late_no_day,
-                        bal: p.bal
+                        bal: p.bal,
+                        placeImage: p.placeImage,
+                        homeImage: p.homeImage,
+                        receiveImage: p.receiveImage,
+                        traceImage: p.traceImage
                         // takePhoto: false,
                         // hasImage: false
                         )));
@@ -153,7 +159,7 @@ class _paymentState extends State<PaymentPage> {
       children: <Widget>[
         SizedBox(height: 10),
         _buildHeader(context),
-        SizedBox(height: 20),
+        SizedBox(height: 10),
         PaginatedDataTable(
             header: this._payDate != null
                 ? Text(
@@ -182,36 +188,39 @@ class _paymentState extends State<PaymentPage> {
 
   Widget _buildHeader(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
-    return Row(children: <Widget>[
+    return Card(
+        child: Container(padding: EdgeInsets.all(10), child: Row(children: <Widget>[
       Container(
           margin: EdgeInsets.symmetric(horizontal: 10),
+          height: 70,
           width: width * 0.25,
           child: DropdownButton<String>(
             value: 'พื้นที่ทั้งหมด',
             onChanged: (String newValue) {
+              print(newValue);
               // setState(() {
               //   dropdown1Value = newValue;
               // });
             },
-            items: <String>['พื้นที่ทั้งหมด', 'Two', 'Free', 'Four']
-                .map<DropdownMenuItem<String>>((String value) {
+            items: _area.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value),
               );
             }).toList(),
           )),
+      SizedBox(width: 30),
       Container(
-          width: width * 0.3,
+          width: width * 0.5,
           child: TextField(
-            decoration: InputDecoration(filled: true, labelText: 'ค้นหาลูกค้า'),
-          )),
-      Container(
-          margin: EdgeInsets.symmetric(horizontal: 5),
-          width: width * 0.1,
-          child: RaisedButton(
-              child: Icon(Icons.clear), onPressed: () {}, color: Colors.white))
-    ]);
+            decoration: InputDecoration(
+                filled: true,
+                labelText: 'ชื่อลูกค้าที่ต้องการค้นหา',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.remove_circle_outline, color: Colors.red),
+                )),
+          ))
+    ])));
   }
 }
 
@@ -237,15 +246,18 @@ class PaymentsDataSource extends DataTableSource {
 
   int _selectedCount = 0;
 
-  Future _takePhoto(String name) async {
+  Future _takePhoto(String name, PlacePhoto photoTag, int photoNumb) async {
     final cameras = await availableCameras();
-    print(cameras);
-    print(cameras.first);
     Navigator.push(
         this._context,
         MaterialPageRoute(
-          builder: (BuildContext context) =>
-              TakePictureScreen(camera: cameras.first, name: name),
+          builder: (BuildContext context) => TakePictureScreen(
+                camera: cameras.first,
+                name: name,
+                photoTag: photoTag,
+                type: PhotoTypes.place,
+                photoNum: photoNumb,
+              ),
           // fullscreenDialog: true,
         ));
   }
@@ -256,7 +268,7 @@ class PaymentsDataSource extends DataTableSource {
     if (index >= _payments.length) return null;
     final Payment2 payment = _payments[index];
     final txtPayAmtController = TextEditingController();
-    if(payment.pay_amt>0){
+    if (payment.pay_amt > 0) {
       txtPayAmtController.text = payment.pay_amt.toString();
     }
     return DataRow.byIndex(
@@ -272,10 +284,28 @@ class PaymentsDataSource extends DataTableSource {
       //   }
       // },
       cells: <DataCell>[
-        DataCell(Icon(Icons.photo_camera, size: 36, color: Colors.teal),
-            onTap: () async {
-          _takePhoto(payment.lnc_no);
-        }),
+        // DataCell(Icon(Icons.photo_camera, size: 36, color: Colors.teal),
+        //     onTap: () async {
+        //   _takePhoto(payment.lnc_no);
+        // }),
+        DataCell(payment.placeImage < 3
+            ? IconButton(
+                icon: Icon(Icons.camera_alt),
+                iconSize: 36,
+                color: Colors.teal,
+                onPressed: () {
+                  var filename = '${payment.lnc_no}-${payment.placeImage + 1}';
+                  print('Image place => ${payment.placeImage}');
+                  PlacePhoto tag = new PlacePhoto(
+                      lnc_no: payment.lnc_no,
+                      cust_no: payment.cust_no,
+                      first_name: payment.first_name,
+                      last_name: payment.last_name,
+                      file_name: filename,
+                      photo_date: DateTime.now());
+                  _takePhoto(filename, tag, payment.placeImage + 1);
+                })
+            : IconButton(icon: Icon(Icons.camera_alt), iconSize: 36)),
         DataCell(TextCell('${payment.lnc_no}')),
         DataCell(TextCell('${payment.first_name} ${payment.last_name}')),
         DataCell(TextCell(DateFormat('dd MMM yyyy').format(DateTime.now()))),
@@ -289,7 +319,10 @@ class PaymentsDataSource extends DataTableSource {
           onEditingComplete: () {
             print(txtPayAmtController.text);
             print(payment.lnc_no);
-            DBProvider.db.updatePayment(payment.lnc_no, int.parse(txtPayAmtController.text)).then((int res){
+            DBProvider.db
+                .updatePayment(
+                    payment.lnc_no, int.parse(txtPayAmtController.text))
+                .then((int res) {
               print('updated');
               print(res);
             });
